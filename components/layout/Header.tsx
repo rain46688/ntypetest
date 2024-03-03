@@ -11,8 +11,8 @@ export default function Header() {
     useEffect(() => {
         // 토큰이 없으면 로그인 페이지로 이동
         const jtoken = getCookie("jtoken");
-        if (jtoken == null || jtoken == '') {
-            userouter.push('/');
+        if (jtoken == null) {
+            userouter.push(''+process.env.NEXT_PUBLIC_LOGIN_URL);
         }
     }, []);
 
@@ -20,7 +20,7 @@ export default function Header() {
     const handleLogout = () =>{
         console.log(" === handleLogout === ");
         deleteCookie("jtoken");
-        userouter.push('/');
+        userouter.push(''+process.env.NEXT_PUBLIC_LOGIN_URL);
     }
 
     return (

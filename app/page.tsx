@@ -1,6 +1,6 @@
 "use client"
-import { useState } from "react";
-import { setCookie } from "@/utils/cookie";
+import { useState, useEffect } from "react";
+import { setCookie, getCookie } from "@/utils/cookie";
 import { sendPost } from "@/utils/fetch";
 import { useRouter } from "next/navigation";
 
@@ -8,6 +8,14 @@ export default function LoginPage() {
   const userouter = useRouter();
   const [userid, setUserid] = useState('');
   const [password, setPassword] = useState('');
+
+  useEffect(() => {
+    // 토큰이 존재하면 기본 페이지로 이동 (일단 유형별 자산관리 /asset_type)
+    const jtoken = getCookie("jtoken");
+    if (jtoken != null) {
+      userouter.push(''+process.env.NEXT_PUBLIC_ROOT_URL);
+    }
+  }, []);
 
   // 로그인 함수
   const handleLogin = async (event: React.FormEvent<HTMLFormElement>) => {
@@ -25,7 +33,7 @@ export default function LoginPage() {
       // 토큰 값 쿠키에 저장
       setCookie("jtoken", result.data.jtoken, 5);
       // 성공 후 라우팅
-      userouter.push('/asset_type');
+      userouter.push(''+process.env.NEXT_PUBLIC_ROOT_URL);
     }
   }
 
