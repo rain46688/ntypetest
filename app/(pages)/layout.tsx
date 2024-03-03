@@ -1,4 +1,6 @@
 import React, { ReactNode } from 'react';
+import Header from "../../components/layout/Header"
+import Navbar from "../../components/layout/Navbar"
 
 interface LayoutProps {
     children: ReactNode;
@@ -7,7 +9,8 @@ interface LayoutProps {
 export default function Layout(props: LayoutProps) {
     return (
         <>
-            <h1>PageLayout</h1>
+            <Header />
+            <Navbar />
             <div className="content">
                 {props.children}
             </div>
