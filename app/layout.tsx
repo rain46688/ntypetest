@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import { Rubik } from 'next/font/google'
 import "./globals.css";
+import { ReduxProvider } from './provider'
 
 // font
 const rubik = Rubik({ subsets: ['latin'] })
@@ -15,7 +16,10 @@ export default function RootLayout({ children }: Readonly<{ children: React.Reac
   return (
     <html>
       <body className={rubik.className}>
+        {/* redux 사용 */}
+        <ReduxProvider>
         {children}
+        </ReduxProvider>
       </body>
     </html>
   );
