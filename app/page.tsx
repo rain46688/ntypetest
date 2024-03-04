@@ -38,6 +38,9 @@ export default function LoginPage() {
     if (result.status != 'fail') {
       // 토큰 값 쿠키에 저장
       setCookie("jtoken", result.data.jtoken, 5);
+      // 아이디와 유저아이디 값은 세션 스토리지에 저장
+      sessionStorage.setItem('id', result.data.id);
+      sessionStorage.setItem('user_id', result.data.user_id);
       // 성공 후 빈값으로 초기화
       dispatch(setUser({ user_id: '', password: ''}))
       // 성공 후 라우팅
