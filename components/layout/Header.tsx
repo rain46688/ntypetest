@@ -54,7 +54,7 @@ export default function Header() {
     return (
         <header>
             <div className="left_area">
-                <Link href="/" className="Main_btn">AssetInvader</Link>
+                <Link href={''+process.env.NEXT_PUBLIC_LOGIN_URL} className="Main_btn">AssetInvader</Link>
             </div>
             <div className="right_area">
                 <button className="logout_btn" onClick={handleLogout}>logout</button>
