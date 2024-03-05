@@ -1,17 +1,23 @@
-// Post 함수
-// data : 데이터 json 형식, url : 요청 뒷부분 url 예시 http://localhost:3000/(뒷부분 url)
+import axios from 'axios';
+
+/**
+ * sendPost 함수 : POST 요청을 보내는 함수
+ * @param {string} data - 요청 데이터
+ * @param {string} url - 요청 URL
+ * @returns {Promise<any>} - API 요청 결과
+ */
 export function sendPost(data: string, url: string): Promise<any> {
     const options = {
-        method: "POST",
+        method: 'POST',
         headers: {
-            "Content-Type": "application/json"
+            'Content-Type': 'application/json',
         },
-        body: data
-    }
+        data: data,
+    };
 
-    return fetch(process.env.NEXT_PUBLIC_API_URL + url, options)
-        .then((res) => res.json())
-        .then((result) => {
+    return axios(process.env.NEXT_PUBLIC_API_URL + url, options)
+        .then((response) => {
+            const result = response.data;
             if (result.status === 'success') {
                 console.log(" === API Success === ");
                 return result;
