@@ -31,3 +31,26 @@ export function sendPost(data: string, url: string): Promise<any> {
             return { 'status': 'fail' }
         });
 };
+
+/**
+ * sendGet 함수 : GET 요청을 보내는 함수
+ * @param {string} url - 요청 URL
+ * @returns {Promise<any>} - API 요청 결과
+*/
+export function sendGet(url: string): Promise<any> {
+    return axios(process.env.NEXT_PUBLIC_API_URL + url)
+        .then((response) => {
+            const result = response.data;
+            if (result.status === 'success') {
+                console.log(" === API Success === ");
+                return result;
+            } else {
+                console.log(" === API Error === ");
+                return { 'status': 'fail' }
+            }
+        })
+        .catch((error) => {
+            console.log(" === API Error : ", error);
+            return { 'status': 'fail' }
+        });
+}

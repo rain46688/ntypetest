@@ -34,7 +34,7 @@ export default function Layout(props: LayoutProps) {
                     height: '100vh',
                     overflow: 'auto',
                 }}>
-                <Container maxWidth="lg" sx={{ m: 15 }}>
+                <Container maxWidth="lg" sx={{ mt: 12 }}>
                     {props.children}
                 </Container>
             </Box>
