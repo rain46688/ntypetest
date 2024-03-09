@@ -3,11 +3,15 @@
 import * as React from 'react';
 import { useState, useEffect, useMemo, ChangeEvent, MouseEvent } from 'react';
 import { sendGet } from "@/utils/fetch";
-import { getComparator, stableSort, Order } from "@/utils/sort";
 import { formatDate } from "@/utils/format";
-import { EnhancedTableToolbar } from "@/components/asset/asset_type/TableHeaderToolbar";
+import { AssetTypeData, createData } from "@/types/asset/AssetType";
+import { Order, getComparator, stableSort } from '@/utils/sort';
 import { EnhancedTableHead } from "@/components/asset/asset_type/TableHeader";
-import { AssetTypeData, createData } from "../../../../types/asset/asset_type/AssetType";
+import { EnhancedTableToolbar } from "@/components/asset/asset_type/TableHeaderToolbar";
+
+// redux 관련 임포트
+import { setAsset } from '@/slices/assetSlice';
+import { useAppDispatch, useAppSelector } from '@/app/store';
 
 // material-ui 관련 임포트
 import Box from '@mui/material/Box';
@@ -20,7 +24,7 @@ import TableRow from '@mui/material/TableRow';
 import Paper from '@mui/material/Paper';
 import Checkbox from '@mui/material/Checkbox';
 
-export default function asset_type() {
+export default function EnhancedTable() {
   // 정렬 ASC / DESC 관련
   const [order, setOrder] = useState<Order>('asc');
   // 정렬 기준 관련
@@ -31,22 +35,37 @@ export default function asset_type() {
   const [page, setPage] = useState(0);
   // 화면에 뿌려지는 기본 데이터 갯수 관련
   const [rowsPerPage, setRowsPerPage] = useState(5);
-  // 데이터를 담을 배열 관련
-  const [rows, setRows] = useState<readonly AssetTypeData[]>([]);
+
+  // redux 관련 추가
+  const dispatch = useAppDispatch();
+  const rows = useAppSelector(state => state.assetReducer);
 
   // 데이터 가져오기
   useEffect(() => {
-    const fetchData = async (id: string) => {
+    const getList = async (id: string) => {
       try {
         const res = await sendGet('/asset/getlist_asset_type/' + id);
         const list = res.data;
         // 데이터 변환
         const newList = list.map((item: AssetTypeData) =>
           // 타입 변환 필요
-          createData(item.id, item.asset_type, item.asset_acnt, item.asset_name, item.amount, item.earning_rate, formatDate(item.reg_date))
+          createData(
+            item.id,
+            item.member_id,
+            item.asset_type,
+            item.asset_big_class,
+            item.asset_mid_class,
+            item.asset_acnt,
+            item.asset_name,
+            item.amount,
+            item.earning_rate,
+            formatDate(item.reg_date),
+            formatDate(item.mod_date),
+            item.use_flag
+          )
         );
         // 데이터 저장
-        setRows(newList);
+        dispatch(setAsset(newList));
       } catch (error) {
         console.error('Error fetching data:', error);
       }
@@ -55,22 +74,10 @@ export default function asset_type() {
     // 세션 스토리지에 저장된 id값 가져오기
     const id = sessionStorage.getItem('id');
     // id값으로 데이터 가져오기
-    fetchData('' + id);
+    getList('' + id);
   }, []);
 
-  // 화면에 뿌려질 데이터
-  // useMemo는 특정 값이 변경될 때만 함수를 실행하고 그렇지 않으면 이전 값을 재사용
-  const visibleRows = useMemo(
-    () =>
-      // 정렬 및 페이지 관련
-      stableSort(rows, getComparator(order, orderBy)).slice(
-        page * rowsPerPage,
-        page * rowsPerPage + rowsPerPage,
-      ),
-    [order, orderBy, page, rowsPerPage, rows],
-  );
-
-  // 정렬 관련
+  // 정렬 관련 함수
   const handleRequestSort = (
     event: MouseEvent<unknown>,
     property: keyof AssetTypeData,
@@ -80,7 +87,7 @@ export default function asset_type() {
     setOrderBy(property);
   };
 
-  // 데이터 선택 관련
+  // 데이터 선택 관련 함수
   const handleSelectAllClick = (event: ChangeEvent<HTMLInputElement>) => {
     if (event.target.checked) {
       const newSelected = rows.map((n) => n.id);
@@ -90,7 +97,7 @@ export default function asset_type() {
     setSelected([]);
   };
 
-  // 데이터 선택 관련
+  // 데이터 선택 관련 함수
   const handleClick = (event: MouseEvent<unknown>, id: number) => {
     const selectedIndex = selected.indexOf(id);
     let newSelected: readonly number[] = [];
@@ -110,23 +117,33 @@ export default function asset_type() {
     setSelected(newSelected);
   };
 
-  // 데이터 선택 관련
-  const isSelected = (id: number) => selected.indexOf(id) !== -1;
-
-  // 페이지 관련
+  // 페이지 관련 함수
   const handleChangePage = (event: unknown, newPage: number) => {
     setPage(newPage);
   };
 
-  // 페이지 관련
+  // 페이지 관련 함수
   const handleChangeRowsPerPage = (event: ChangeEvent<HTMLInputElement>) => {
     setRowsPerPage(parseInt(event.target.value, 10));
     setPage(0);
   };
 
-  // 빈 행 관련
-  const emptyRows =
-    page > 0 ? Math.max(0, (1 + page) * rowsPerPage - rows.length) : 0;
+  // 선택된 데이터 확인 함수
+  const isSelected = (id: number) => selected.indexOf(id) !== -1;
+
+  // 빈 행 계산
+  const emptyRows = page > 0 ? Math.max(0, (1 + page) * rowsPerPage - rows.length) : 0;
+
+  // 화면에 뿌려질 데이터
+  // useMemo는 특정 값이 변경될 때만 함수를 실행하고 그렇지 않으면 이전 값을 재사용  
+  const visibleRows = useMemo(
+    () =>
+      stableSort(rows, getComparator(order, orderBy)).slice(
+        page * rowsPerPage,
+        page * rowsPerPage + rowsPerPage,
+      ),
+    [order, orderBy, page, rowsPerPage, rows],
+  );
 
   return (
     <Box sx={{ width: '100%' }}>
@@ -160,7 +177,8 @@ export default function asset_type() {
                     tabIndex={-1}
                     key={row.id}
                     selected={isItemSelected}
-                    sx={{ cursor: 'pointer' }}>
+                    sx={{ cursor: 'pointer' }}
+                  >
                     <TableCell padding="checkbox">
                       <Checkbox
                         color="primary"
@@ -173,9 +191,10 @@ export default function asset_type() {
                     <TableCell
                       component="th"
                       id={labelId}
-                      scope="row"
+                      scope="center"
+                      padding="none"
                       align="center"
-                      padding="none">
+                    >
                       {row.asset_type}
                     </TableCell>
                     <TableCell align="center">{row.asset_acnt}</TableCell>
@@ -189,7 +208,8 @@ export default function asset_type() {
                 <TableRow
                   style={{
                     height: ('small' ? 33 : 53) * emptyRows, // 테이블 사이즈 middle / small
-                  }}>
+                  }}
+                >
                   <TableCell colSpan={6} />
                 </TableRow>
               )}

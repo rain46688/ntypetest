@@ -4,12 +4,14 @@ import { TypedUseSelectorHook, useDispatch, useSelector } from 'react-redux';
 // 신규 데이터 추가시 임포트 부분
 import userReducer from '../slices/userSlice';
 import layoutReducer from '../slices/layoutSlice';
+import assetReducer from '../slices/assetSlice';
 
 export const store = configureStore({
   reducer: {
     userReducer,
     // 신규 데이터 추가시 수정 부분
     layoutReducer,
+    assetReducer,
   },
 });
 

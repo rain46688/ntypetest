@@ -2,7 +2,7 @@ import { ChangeEvent, MouseEvent } from 'react';
 import { visuallyHidden } from '@mui/utils';
 import { Box, Checkbox, TableHead, TableRow, TableCell, TableSortLabel } from '@mui/material';
 import { Order } from '@/utils/sort';
-import { AssetTypeData } from "../../../types/asset/asset_type/AssetType";
+import { AssetTypeData } from "../../../types/asset/AssetType";
 
 interface HeadCell {
     id: keyof AssetTypeData;
