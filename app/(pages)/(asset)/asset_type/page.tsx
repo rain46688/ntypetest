@@ -43,8 +43,8 @@ export default function EnhancedTable() {
   // 데이터 가져오기
   useEffect(() => {
     const getList = async (id: string) => {
-      try {
-        const res = await sendGet('/asset/getlist_asset_type/' + id);
+      const res = await sendGet('/asset/getlist_asset_type/' + id);
+      if (res.status === 'success') {
         const list = res.data;
         // 데이터 변환
         const newList = list.map((item: AssetTypeData) =>
@@ -66,8 +66,8 @@ export default function EnhancedTable() {
         );
         // 데이터 저장
         dispatch(setAsset(newList));
-      } catch (error) {
-        console.error('Error fetching data:', error);
+      } else {
+        console.log('error');
       }
     };
 
