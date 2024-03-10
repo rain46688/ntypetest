@@ -4,7 +4,7 @@ import AssetTypeTable from '@/components/asset/asset_type/AssetTypeTable';
 // material-ui 관련 임포트
 import Box from '@mui/material/Box';
 
-export default function EnhancedTable() {
+export default function AsetTypePage() {
 
   return (
     <Box sx={{ width: '100%' }}>
