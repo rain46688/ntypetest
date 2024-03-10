@@ -2,7 +2,7 @@
 
 import * as React from 'react';
 import { useState, useEffect, useMemo, ChangeEvent, MouseEvent } from 'react';
-import { sendGet } from "@/utils/fetch";
+import { sendGet, sendPut } from "@/utils/fetch";
 import { formatDate } from "@/utils/format";
 import { AssetTypeData, createData } from "@/types/asset/AssetType";
 import { Order, getComparator, stableSort } from '@/utils/sort';
@@ -23,6 +23,9 @@ import TablePagination from '@mui/material/TablePagination';
 import TableRow from '@mui/material/TableRow';
 import Paper from '@mui/material/Paper';
 import Checkbox from '@mui/material/Checkbox';
+import NativeSelect from '@mui/material/NativeSelect';
+import Input from '@mui/material/Input';
+
 
 export default function EnhancedTable() {
   // 정렬 ASC / DESC 관련
@@ -99,6 +102,15 @@ export default function EnhancedTable() {
 
   // 데이터 선택 관련 함수
   const handleClick = (event: MouseEvent<unknown>, id: number) => {
+    console.log(" ==== handleClick ==== ");
+    const selectcheck = (event.target as HTMLInputElement).value;
+    // console.log("selectcheck : ", selectcheck);
+
+    // 체크박스가 아닌 곳을 클릭했을 때
+    if (selectcheck != 'on') {
+      return;
+    }
+
     const selectedIndex = selected.indexOf(id);
     let newSelected: readonly number[] = [];
 
@@ -144,6 +156,52 @@ export default function EnhancedTable() {
       ),
     [order, orderBy, page, rowsPerPage, rows],
   );
+
+  // 데이터 변경 함수
+  const handleDataChange = (event: ChangeEvent<any>, id: number, field: string) => {
+    console.log(" ==== handleChange ==== ");
+    // console.log("id : ", id);
+    // console.log("field : ", field);
+    // console.log("e.target.value : ", event.target.value);
+    // console.log("rows : ", rows);
+    const updatedRows = rows.map(item => {
+      if (item.id === id) {
+        return {
+          ...item,
+          [field]: event.target.value
+        };
+      }
+      return item;
+    });
+
+    // 수정된 배열을 설정
+    dispatch(setAsset(updatedRows));
+  };
+
+  // 데이터 변경 함수
+  const handleDataBlur = async (event: ChangeEvent<any>, id: number, field: string) => {
+    console.log(" ==== handleDataBlur ==== ");
+    // console.log("id : ", id);
+    // console.log("field : ", field);
+    // list에서 해당 아이디에 매칭되는 데이터를 뽑아옴
+    const item = rows.find(item => item.id === id);
+    // console.log("item : ", item);
+
+    const data = JSON.stringify({
+      "asset_type": item?.asset_type,
+      "asset_name": item?.asset_name,
+      "amount": item?.amount,
+      "asset_acnt": item?.asset_acnt,
+      "earning_rate": item?.earning_rate
+    });
+
+    const result = await sendPut(data, 'asset/update_asset/' + id);
+    if (result.status === 'success') {
+      console.log("수정 성공");
+    } else {
+      console.log("수정 실패");
+    }
+  };
 
   return (
     <Box sx={{ width: '100%' }}>
@@ -193,13 +251,30 @@ export default function EnhancedTable() {
                       id={labelId}
                       scope="center"
                       padding="none"
-                      align="center"
-                    >
-                      {row.asset_type}
+                      align="center">
+                      <NativeSelect
+                        value={row.asset_type}
+                        onChange={(event: ChangeEvent<any>) => handleDataChange(event, row.id, 'asset_type')}
+                        onBlur={(event: ChangeEvent<any>) => handleDataBlur(event, row.id, 'asset_type')}
+                        style={{ width: '150px', border: 'none' }}
+                        inputProps={{ 'aria-label': 'Without label' }}>
+                        <option value={'투자'}>투자</option>
+                        <option value={'입출식'}>입출식</option>
+                        <option value={'예적금'}>예적금</option>
+                      </NativeSelect>
                     </TableCell>
-                    <TableCell align="center">{row.asset_acnt}</TableCell>
-                    <TableCell align="center">{row.asset_name}</TableCell>
-                    <TableCell align="center">{row.amount}</TableCell>
+                    <TableCell align="center"><Input value={row.asset_acnt || ''}
+                      onChange={(event: ChangeEvent<any>) => handleDataChange(event, row.id, 'asset_acnt')}
+                      onBlur={(event) => handleDataBlur(event, row.id, 'asset_acnt')} />
+                    </TableCell>
+                    <TableCell align="center"><Input value={row.asset_name || ''}
+                      onChange={(event: ChangeEvent<any>) => handleDataChange(event, row.id, 'asset_name')}
+                      onBlur={(event) => handleDataBlur(event, row.id, 'asset_name')} />
+                    </TableCell>
+                    <TableCell align="center"><Input value={row.amount || 0}
+                      onChange={(event: ChangeEvent<any>) => handleDataChange(event, row.id, 'amount')}
+                      onBlur={(event) => handleDataBlur(event, row.id, 'amount')} />
+                    </TableCell>
                     <TableCell align="center">{row.reg_date}</TableCell>
                   </TableRow>
                 );
