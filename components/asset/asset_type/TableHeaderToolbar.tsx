@@ -1,5 +1,5 @@
 import * as React from 'react';
-import { sendPost } from '@/utils/fetch';
+import { sendPost, sendDelete } from '@/utils/fetch';
 import { formatDate } from '@/utils/format';
 import { createData } from '@/types/asset/AssetType';
 
@@ -19,13 +19,16 @@ import AddIcon from '@mui/icons-material/Add';
 
 interface EnhancedTableToolbarProps {
   numSelected: number;
+  selected: readonly number[];
+  setSelected: React.Dispatch<React.SetStateAction<readonly number[]>>;
 }
 
 export function EnhancedTableToolbar(props: EnhancedTableToolbarProps) {
-  const { numSelected } = props;
+  const { numSelected, selected, setSelected } = props;
   const dispatch = useAppDispatch();
   const list = useAppSelector(state => state.assetReducer); // Redux 상태에서 필요한 데이터 읽어오기
 
+  // 항목 추가
   const handleAddList = async () => {
     console.log('=== handleAddList === ');
     console.log("list : ", list);
@@ -67,6 +70,23 @@ export function EnhancedTableToolbar(props: EnhancedTableToolbarProps) {
     }
   };
 
+  // 선택된 항목 삭제
+  const handleDeleteList = async () => {
+    console.log('=== handleDeleteList === ');
+    console.log("selected : ", selected);
+
+    selected.forEach(async (id) => {
+      const result = await sendDelete('asset/delete_asset/' + id);
+      if (result.status === 'success') {
+        const newList = list.filter((item) => item.id !== id);
+        setSelected([]);
+        dispatch(setAsset(newList));
+      } else {
+        console.log("fail");
+      }
+    });
+  };
+
   return (
     <Toolbar
       sx={{
@@ -97,7 +117,7 @@ export function EnhancedTableToolbar(props: EnhancedTableToolbarProps) {
       )}
       {numSelected > 0 ? (
         <Tooltip title="Delete">
-          <IconButton>
+          <IconButton onClick={handleDeleteList}>
             <DeleteIcon />
           </IconButton>
         </Tooltip>
