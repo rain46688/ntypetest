@@ -112,6 +112,10 @@ export const useAssetType = () => {
 
     // 페이지 관련 함수
     const handleChangePage = (event: unknown, newPage: number) => {
+        console.log(" ==== handleChangePage ==== ");
+        // console.log("newPage : ", newPage);
+        // console.log("page : ", page);
+        // console.log("rowsPerPage : ", rowsPerPage);
         setPage(newPage);
     };
 
@@ -194,6 +198,7 @@ export const useAssetType = () => {
         emptyRows,
         page,
         rowsPerPage,
+        setPage,
         isSelected,
         handleSelectAllClick,
         handleRequestSort,

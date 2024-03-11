@@ -30,6 +30,7 @@ export default function AssetTypeTable() {
         emptyRows,
         page,
         rowsPerPage,
+        setPage,
         isSelected,
         handleSelectAllClick,
         handleRequestSort,
@@ -42,7 +43,7 @@ export default function AssetTypeTable() {
 
     return (
         <Paper sx={{ width: '100%', mb: 2 }}>
-            <EnhancedTableToolbar numSelected={selected.length} selected={selected} setSelected={setSelected} />
+            <EnhancedTableToolbar numSelected={selected.length} selected={selected} setSelected={setSelected} setPage={setPage} rowsPerPage={rowsPerPage}/>
             <TableContainer>
                 <Table
                     sx={{ minWidth: 750 }}
@@ -118,7 +119,7 @@ export default function AssetTypeTable() {
                         {emptyRows > 0 && (
                             <TableRow
                                 style={{
-                                    height: ('small' ? 33 : 53) * emptyRows, // 테이블 사이즈 middle / small
+                                    height: 33 * emptyRows, // 테이블 사이즈 middle : 53 / small : 33
                                 }}
                             >
                                 <TableCell colSpan={6} />

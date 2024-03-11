@@ -21,10 +21,12 @@ interface EnhancedTableToolbarProps {
   numSelected: number;
   selected: readonly number[];
   setSelected: React.Dispatch<React.SetStateAction<readonly number[]>>;
+  setPage: React.Dispatch<React.SetStateAction<number>>;
+  rowsPerPage: number;
 }
 
 export function EnhancedTableToolbar(props: EnhancedTableToolbarProps) {
-  const { numSelected, selected, setSelected } = props;
+  const { numSelected, selected, setSelected, setPage, rowsPerPage } = props;
   const dispatch = useAppDispatch();
   const list = useAppSelector(state => state.assetReducer); // Redux 상태에서 필요한 데이터 읽어오기
 
@@ -63,7 +65,10 @@ export function EnhancedTableToolbar(props: EnhancedTableToolbarProps) {
           1
         )
       ];
-
+      // 추가 시에 마지막 페이지로 이동
+      const movePage = Math.ceil((newList.length + 1) / rowsPerPage) - 1;
+      console.log("movePage : ", movePage);
+      setPage(movePage);
       dispatch(setAsset(newList));
     } else {
       console.log("fail");
@@ -80,6 +85,10 @@ export function EnhancedTableToolbar(props: EnhancedTableToolbarProps) {
       if (result.status === 'success') {
         const newList = list.filter((item) => item.id !== id);
         setSelected([]);
+        // 삭제 시에 마지막 페이지로 이동
+        const movePage = Math.ceil((newList.length - 1) / rowsPerPage) - 1;
+        console.log("movePage : ", movePage);
+        setPage(movePage);
         dispatch(setAsset(newList));
       } else {
         console.log("fail");
