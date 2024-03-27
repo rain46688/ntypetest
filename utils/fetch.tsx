@@ -1,4 +1,5 @@
 import axios from 'axios';
+import { refresh_jwtoken } from './util';
 
 /**
  * sendPost 함수 : POST 요청을 보내는 함수
@@ -6,11 +7,17 @@ import axios from 'axios';
  * @param {string} url - 요청 URL
  * @returns {Promise<any>} - API 요청 결과
  */
-export function sendPost(data: string, url: string): Promise<any> {
+export async function sendPost(data: string, url: string): Promise<any> {
+    // 로그인 페이지가 아닌 경우
+    if (url != 'member/login') {
+        // 리프레쉬 토큰이 만료 안됬으면 액세스 토큰 재발급
+        await refresh_jwtoken();
+    }
     const options = {
         method: 'POST',
         headers: {
             'Content-Type': 'application/json',
+            Authorization: `Bearer ${sessionStorage.getItem('jtoken')}`
         },
         data: data,
     };
@@ -37,8 +44,16 @@ export function sendPost(data: string, url: string): Promise<any> {
  * @param {string} url - 요청 URL
  * @returns {Promise<any>} - API 요청 결과
 */
-export function sendGet(url: string): Promise<any> {
-    return axios(process.env.NEXT_PUBLIC_API_URL + url)
+export async function sendGet(url: string): Promise<any> {
+    // 리프레쉬 토큰이 만료 안됬으면 액세스 토큰 재발급
+    await refresh_jwtoken();
+    const options = {
+        headers: {
+            Authorization: `Bearer ${sessionStorage.getItem('jtoken')}`
+        },
+    };
+
+    return axios(process.env.NEXT_PUBLIC_API_URL + url, options)
         .then((response) => {
             const result = response.data;
             if (result.status === 'success') {
@@ -61,11 +76,14 @@ export function sendGet(url: string): Promise<any> {
  * @param {string} url - 요청 URL
  * @returns {Promise<any>} - API 요청 결과
  */
-export function sendPut(data: string, url: string): Promise<any> {
+export async function sendPut(data: string, url: string): Promise<any> {
+    // 리프레쉬 토큰이 만료 안됬으면 액세스 토큰 재발급
+    await refresh_jwtoken();
     const options = {
         method: 'PUT',
         headers: {
             'Content-Type': 'application/json',
+            Authorization: `Bearer ${sessionStorage.getItem('jtoken')}`
         },
         data: data,
     };
@@ -92,8 +110,17 @@ export function sendPut(data: string, url: string): Promise<any> {
  * @param {string} url - 요청 URL
  * @returns {Promise<any>} - API 요청 결과
  */
-export function sendDelete(url: string): Promise<any> {
-    return axios(process.env.NEXT_PUBLIC_API_URL + url, { method: 'DELETE' })
+export async function sendDelete(url: string): Promise<any> {
+    // 리프레쉬 토큰이 만료 안됬으면 액세스 토큰 재발급
+    await refresh_jwtoken();
+    const options = {
+        method: 'DELETE',
+        headers: {
+            Authorization: `Bearer ${sessionStorage.getItem('jtoken')}`
+        },
+    };
+
+    return axios(process.env.NEXT_PUBLIC_API_URL + url, options)
         .then((response) => {
             const result = response.data;
             if (result.status === 'success') {

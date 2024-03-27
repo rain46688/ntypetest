@@ -35,7 +35,7 @@ export const useLogin = () => {
       const result = await sendPost(data, 'member/login');
       if (result.status == 'success') {
         // 토큰 값 쿠키에 저장
-        setCookie("jtoken", result.data.jtoken, 5);
+        sessionStorage.setItem('jtoken', result.data.jtoken);
         // 아이디와 유저아이디 값은 세션 스토리지에 저장
         sessionStorage.setItem('id', result.data.id);
         sessionStorage.setItem('user_id', result.data.user_id);
